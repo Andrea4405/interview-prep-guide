@@ -6,6 +6,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState("home");
   const [tab, setTab] = useState("technical");
   const [search, setSearch] = useState("");
+  const [companyType, setCompanyType] = useState("product");
+  const [skills, setSkills] = useState([]);
   const [questions, setQuestions] = useState({ technical: [], hr: [] });
   const [resources, setResources] = useState([]);
   const [roadmap, setRoadmap] = useState([]);
@@ -18,18 +20,27 @@ function App() {
     { text: "Practice HR interview answers", done: false },
   ]);
 
-  useEffect(() => {
-    if (currentPage !== "home") {
-      fetch("http://localhost:5000/api/data")
-        .then((res) => res.json())
-        .then((data) => {
-          setRoadmap(data.roadmap);
-          setQuestions(data.questions);
-          setResources(data.resources);
-        })
-        .catch((err) => console.error("Error fetching data:", err));
-    }
-  }, [currentPage]);
+useEffect(() => {
+  if (currentPage !== "home") {
+    fetch("http://localhost:5000/api/data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        companyType: companyType,
+        skills: skills
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setRoadmap(data.roadmap);
+        setQuestions(data.questions);
+        setResources(data.resources);
+      })
+      .catch((err) => console.error("Error fetching data:", err));
+  }
+}, [currentPage, companyType, skills]);
 
   const progress = useMemo(() => {
     const doneCount = checklist.filter((item) => item.done).length;
@@ -47,7 +58,13 @@ function App() {
   };
 
   if (currentPage === "home") {
-    return <Home setCurrentPage={setCurrentPage} />;
+    return (
+      <Home
+        setCurrentPage={setCurrentPage}
+        setCompanyType={setCompanyType}
+        setSkills={setSkills}
+      />
+    );
   }
 
   return (
@@ -62,7 +79,6 @@ function App() {
           </p>
           <div className="hero-buttons">
             <button onClick={() => setCurrentPage("home")}>Start Preparation</button>
-            <button className="secondary-btn">View Resources</button>
           </div>
         </div>
 

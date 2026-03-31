@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Home.css";
 
-function Home({ setCurrentPage }) {
+function Home({ setCurrentPage, setCompanyType: setAppCompanyType, setSkills }) {
   const [companyType, setCompanyType] = useState(null);
   const [skillset, setSkillset] = useState("");
   const [preparationTime, setPreparationTime] = useState(4);
@@ -11,12 +11,11 @@ function Home({ setCurrentPage }) {
       alert("Please select a company type and enter your skillset");
       return;
     }
-    console.log({
-      companyType,
-      skillset,
-      preparationTime,
-    });
-    // Navigate to dashboard
+
+    // send values to App.jsx
+    setAppCompanyType(companyType);
+    setSkills(skillset.split(",").map((s) => s.trim().toLowerCase()));
+
     setCurrentPage("dashboard");
   };
 

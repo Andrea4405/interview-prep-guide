@@ -5,8 +5,45 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const companyRequirements = {
+  product: ["dsa", "system design", "dbms", "oop"],
+  service: ["aptitude", "java", "sql", "communication"],
+  startup: ["javascript", "react", "node", "api"]
+};
+
 const data = {
-  roadmap: [
+  roadmap: {
+    product: [
+      {
+        title: "Data Structures & Algorithms",
+        points: [
+          "Arrays, Linked Lists, Stacks, Queues",
+          "Binary Trees and Graphs",
+          "Dynamic Programming",
+          "Practice problems on LeetCode"
+        ]
+      },
+      {
+        title: "System Design",
+        points: [
+          "Scalability basics",
+          "Design patterns",
+          "Microservices vs Monolith",
+          "Practice system design questions"
+        ]
+      },
+      {
+        title: "Core CS",
+        points: [
+          "DBMS concepts",
+          "Operating Systems",
+          "Computer Networks",
+          "OOP principles"
+        ]
+      }
+    ],
+
+  service: [
     {
       title: "Aptitude",
       points: [
@@ -17,25 +54,75 @@ const data = {
       ]
     },
     {
-      title: "Technical",
+      title: "Programming Basics",
       points: [
-        "Core CS subjects",
-        "Programming concepts",
-        "SQL and DBMS",
-        "Projects and resume prep"
+        "Java / Python fundamentals",
+        "Basic coding problems",
+        "Understanding algorithms",
+        "Practice HackerRank problems"
       ]
     },
     {
-      title: "Interview",
+      title: "Interview Preparation",
       points: [
-        "HR questions",
-        "Technical questions",
-        "Self introduction",
-        "Company-specific prep"
+        "HR interview questions",
+        "Communication skills",
+        "Group discussion practice",
+        "Resume preparation"
       ]
     }
-  ],
+  ]
+},
   questions: {
+    dsa: [
+    "Explain time complexity with examples.",
+    "What is a binary search tree?",
+    "Difference between stack and queue.",
+    "How does quicksort work?"
+  ],
+
+    dbms: [
+    "What is normalization?",
+    "Explain ACID properties.",
+    "Difference between SQL and NoSQL.",
+    "What is indexing?"
+  ],
+
+    javascript: [
+    "Explain closures in JavaScript.",
+    "What is event delegation?",
+    "Difference between var, let and const.",
+    "What is async/await?"
+  ],
+
+    react: [
+    "What are React hooks?",
+    "Difference between state and props.",
+    "Explain virtual DOM.",
+    "What is useEffect?"
+  ],
+
+    python: [
+    "What is a list in Python?",
+    "What is the difference between list and tuple?",
+    "Explain Python decorators.",
+    "What is a lambda function in Python?",
+    "What is the purpose of virtual environments?"
+  ],
+    java: [
+    "What is JVM?",
+    "Explain inheritance in Java.",
+    "What is the difference between interface and abstract class?",
+    "What is multithreading in Java?",
+    "What is method overloading vs overriding?"
+  ],
+     web: [
+    "What is the DOM?",
+    "What is the difference between HTML and HTML5?",
+    "Explain REST APIs.",
+    "What is responsive design?",
+    "What is the difference between var, let, and const?"
+  ],
     technical: [
       "What is the difference between stack and queue?",
       "Explain DBMS normalization with an example.",
@@ -62,8 +149,32 @@ const data = {
   ]
 };
 
-app.get("/api/data", (req, res) => {
-  res.json(data);
+app.post("/api/data", (req, res) => {
+  const { companyType, skills } = req.body;
+
+  const requiredSkills = companyRequirements[companyType] || [];
+  const studentSkills = skills ? skills.map((s) => s.toLowerCase()) : [];
+
+  const missingSkills = requiredSkills.filter(
+    (skill) => !studentSkills.includes(skill)
+  );
+
+  let suggestedQuestions = [];
+
+  missingSkills.forEach((skill) => {
+    if (data.questions[skill]) {
+      suggestedQuestions = suggestedQuestions.concat(data.questions[skill]);
+    }
+  });
+
+  res.json({
+    roadmap: data.roadmap[companyType] || data.roadmap.product,
+    questions: {
+      technical: suggestedQuestions,
+      hr: data.questions.hr
+    },
+    resources: data.resources
+  });
 });
 
 app.listen(5000, () => {
